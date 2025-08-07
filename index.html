@@ -706,6 +706,7 @@
       -ms-user-select: none;
       user-select: none;
     }
+
   </style>
 </head>
 <body>
@@ -876,14 +877,72 @@
     </div>
   </div>
 
-  <script>
-    // Initialize particles
-    function createParticles() {
-      const particlesContainer = document.getElementById('particles');
-      for (let i = 0; i < 50; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'particle';
-        particle.style.left = Math.random() * 100 + '%';
-        particle.style.top = Math.random() * 100 + '%';
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<script>
+    const canvas = document.getElementById("wheel");
+    const ctx = canvas.getContext("2d");
+    const spinBtn = document.getElementById("spin-btn");
+    const result = document.getElementById("result");
+    canvas.width = 300;
+    canvas.height = 300;
+
+    const segments = ["Better Luck Next Time", "Headphones", "Power Bank", "Bluetooth Speaker", "Smartwatch", "Gift Voucher"];
+    const colors = ["#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#F3FF33", "#33FFF6"];
+
+    let angle = 0;
+
+    function drawWheel() {
+      const angleStep = (2 * Math.PI) / segments.length;
+      for (let i = 0; i < segments.length; i++) {
+        ctx.beginPath();
+        ctx.moveTo(150, 150);
+        ctx.fillStyle = colors[i];
+        ctx.arc(150, 150, 150, angleStep * i, angleStep * (i + 1));
+        ctx.fill();
+        ctx.save();
+        ctx.translate(150, 150);
+        ctx.rotate(angleStep * i + angleStep / 2);
+        ctx.fillStyle = "#000";
+        ctx.font = "14px Arial";
+        ctx.fillText(segments[i], 40, 10);
+        ctx.restore();
       }
     }
+
+    drawWheel();
+
+    spinBtn.addEventListener("click", () => {
+      const randomDeg = Math.floor(Math.random() * 360 + 1800);
+      canvas.style.transform = `rotate(${randomDeg}deg)`;
+
+      const actualDeg = randomDeg % 360;
+      const index = Math.floor((360 - actualDeg) / (360 / segments.length)) % segments.length;
+
+      setTimeout(() => {
+        const isBetterLuck = Math.random() < 0.8;
+        const selectedPrize = isBetterLuck ? "Better Luck Next Time" : segments[Math.floor(Math.random() * (segments.length - 1)) + 1];
+
+        result.innerText = `🎉 ${selectedPrize}! 🎉`;
+
+        if (selectedPrize !== "Better Luck Next Time") {
+          for (let i = 0; i < 50; i++) {
+            const confetti = document.createElement("div");
+            confetti.classList.add("confetti");
+            confetti.style.left = Math.random() * 100 + "vw";
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            document.body.appendChild(confetti);
+            setTimeout(() => confetti.remove(), 3000);
+          }
+          const winSound = new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_5cd7d94675.mp3?filename=success-1-6297.mp3");
+          winSound.play();
+        }
+      }, 5500);
+    });
+  </script>
+</body>
+</html>
+
+</body>
+
+
